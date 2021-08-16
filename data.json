@@ -1,0 +1,26 @@
+[{
+  "productId": "1",
+  "name": "Product A",
+  "price": "10",
+  "_class": "com.transactions.products.domain.Product"
+},{
+  "productId": "2",
+  "name": "Product B",
+  "price": "15",
+  "_class": "com.transactions.products.domain.Product"
+},{
+  "productId": "3",
+  "name": "Product C",
+  "price": "20",
+  "_class": "com.transactions.products.domain.Product"
+},{
+  "productId": "4",
+  "name": "Product D",
+  "price": "25",
+  "_class": "com.transactions.products.domain.Product"
+},{
+  "productId": "5",
+  "name": "Product E",
+  "price": "30",
+  "_class": "com.transactions.products.domain.Product"
+}]

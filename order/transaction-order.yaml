@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transactions-order-deployment
+  namespace: event-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      transaction-order: web
+  template:
+    metadata:
+      labels:
+        transaction-order: web
+    spec:
+      containers:
+        - name: transaction-order
+          image: transaction-order
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          env:
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-config
+                  key: username
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-release-mongodb
+                  key: mongodb-root-password
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-config
+                  key: authenticationdatabase
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: event-shop-db
+                  key: host
+            - name: PRODUCT_SERVICE
+              valueFrom:
+                configMapKeyRef:
+                  name: event-shop-services
+                  key: product
+            - name: CART_SERVICE
+              valueFrom:
+                configMapKeyRef:
+                  name: event-shop-services
+                  key: cart
+            - name: KAFKA_CONSUMER_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: event-shop-kafka
+                  key: consumer
+            - name: KAFKA_PRODUCER_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: event-shop-kafka
+                  key: producer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transaction-order-service
+  namespace: event-shop
+spec:
+  type: NodePort
+  selector:
+    transaction-order: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP

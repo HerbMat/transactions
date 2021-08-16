@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: event-shop
+  labels:
+    name: event-shop
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongo-config
+  namespace: event-shop
+type: Opaque
+stringData:
+  username: root
+  authenticationdatabase: admin
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: event-shop-db
+  namespace: event-shop
+data:
+  host: my-release-mongodb
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: event-shop-services
+  namespace: event-shop
+data:
+  product: transaction-products-service
+  cart: transaction-cart-service
+---
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: event-shop-kafka
+  namespace: event-shop
+data:
+  producer: kafka-0.kafka-headless.event-shop.svc.cluster.local:9092
+  consumer: kafka.event-shop.svc.cluster.local:9092
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  name: event-shop-ingress
+  namespace: event-shop
+spec:
+  rules:
+    - host: eventshop.dev
+      http:
+        paths:
+          - path: /(products/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: transaction-products-service
+                port:
+                  number: 80
+          - path: /(cart/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: transaction-cart-service
+                port:
+                  number: 80
+          - path: /(order/.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: transaction-order-service
+                port:
+                  number: 80

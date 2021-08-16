@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - /data/db
+    network_mode: host
+#  products:
+#    image: transaction-products
+#    ports:
+#      - 8080:8080
+#    depends_on:
+#      - mongo
+#    network_mode: host
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    restart: always
+    network_mode: host
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=172.17.0.3:30692

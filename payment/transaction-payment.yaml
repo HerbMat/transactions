@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transactions-payment-deployment
+  namespace: event-shop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      transaction-payment: web
+  template:
+    metadata:
+      labels:
+        transaction-payment: web
+    spec:
+      containers:
+        - name: transaction-payment
+          image: transaction-payment
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          env:
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-config
+                  key: username
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: my-release-mongodb
+                  key: mongodb-root-password
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-config
+                  key: authenticationdatabase
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: event-shop-db
+                  key: host
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transaction-payment-service
+  namespace: event-shop
+spec:
+  type: NodePort
+  selector:
+    transaction-payment: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
